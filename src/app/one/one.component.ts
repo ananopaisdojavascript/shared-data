@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder } from '@angular/forms';
 import { SharedService } from '../shared.service';
+import { url } from '../people';
 
 @Component({
   selector: 'app-one',
@@ -20,9 +21,9 @@ export class OneComponent {
     email: ['']
   });
 
-  onSubmit() {
+  addData() {
     if (this.form.valid) {
-      this.sharedService.createDataToSource(this.form.value)
+      this.sharedService.addDataToFirstArray(url, this.form.value);
     }
   }
 }

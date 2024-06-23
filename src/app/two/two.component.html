@@ -3,6 +3,6 @@
 <ul>
     <li *ngFor="let person of sourceArray; let i = index">
         <p>{{person.name}} - {{person.email}}</p>
-        <button (click)="transferData(i)">Transfer</button>
+        <button (click)="transferItems(person)">Transfer</button>
     </li>
 </ul>

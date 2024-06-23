@@ -15,13 +15,15 @@ export class TwoComponent implements OnInit {
 
   sourceArray: IPeople[] = []
 
+ 
   ngOnInit() {
-    this.sharedService.currentSourceArr.subscribe(data => {
+    this.sharedService.firstArray$.subscribe(data => {
       this.sourceArray = data
     })
   }
 
-  transferData(index: number) {
-    this.sharedService.transferItemToTargetArray(index)
+  transferItems(person: IPeople) {
+    this.sharedService.transferToSecondArray(person)
   }
+
 }

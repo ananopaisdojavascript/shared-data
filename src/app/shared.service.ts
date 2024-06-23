@@ -1,57 +1,44 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { BehaviorSubject, concatMap, toArray } from 'rxjs';
 import { IPeople } from './people';
-
-const url = 'http://localhost:3000/people'
+import { BehaviorSubject, concatMap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SharedService {
+  private firstArray = new BehaviorSubject<IPeople[]>([]);
+  private secondArray = new BehaviorSubject<IPeople[]>([]);
 
-  http = inject(HttpClient)
+  firstArray$ = this.firstArray.asObservable();
+  secondArray$ = this.secondArray.asObservable();
 
-  private sourceArr = new BehaviorSubject<IPeople[]>([])
-  
-  currentSourceArr = this.sourceArr.asObservable()
+  http = inject(HttpClient);
 
-  private targetArr = new BehaviorSubject<IPeople[]>([])
-
-  currentTargetArr = this.targetArr.asObservable()
-
-  fetchDataToSource() {
+  fetchData(url: string) {
     this.http.get<IPeople[]>(url).subscribe(data => {
-      this.sourceArr.next(data)
-    })
-  }
-
-  createDataToSource(person: IPeople) {
-    this.http.post<IPeople[]>(url, person).subscribe(data => {
-      this.sourceArr.next(data)
-    })
-  }
-
-  addToTargetArray(item: IPeople) {
-    const currentTargetArr = this.targetArr.getValue();
-    currentTargetArr.push(item);
-    this.targetArr.next(currentTargetArr);
-  }
-
-  getTargetArray(): IPeople[] {
-    return this.targetArr.getValue();
-  }
-
-  transferItemToTargetArray(index: number) {
-    this.sourceArr.pipe(
-      concatMap(peopleArr => {
-        const item = peopleArr.splice(index, 1)[0];
-        this.targetArr.next([...this.targetArr.getValue(), item]);
-        return [peopleArr];
-      })
-    ).subscribe(peopleArr => {
-      this.sourceArr.next(peopleArr);
+      this.firstArray.next(data);
     });
+  }
+
+  addDataToFirstArray(url: string, data: IPeople) {
+    return this.http.post<IPeople>(url, data).subscribe(data => {
+      const currentValue = this.firstArray.getValue();
+      currentValue.push(data);
+      return this.firstArray.next(currentValue);
+    });
+  }
+
+  transferToSecondArray(item: IPeople) {
+    const firstArrayValue = this.firstArray.value;
+    const secondArrayValue = this.secondArray.value;
+
+    const updateFirstArray = firstArrayValue.filter(i => i !== item)
+
+    const updateSecondArray = [...secondArrayValue, item];
+
+    this.firstArray.next(updateFirstArray);
+    this.secondArray.next(updateSecondArray);
   }
 
 }
